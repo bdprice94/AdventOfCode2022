@@ -76,24 +76,29 @@ public class DayTwo {
         public const int LOST = 0;
         public const int DRAW = 3;
         public const int WON = 6;
+        public const int ROCK = 1;
+        public const int PAPER = 2;
+        public const int SCISSORS = 3;
         public static readonly Dictionary<char,int> decoder = new Dictionary<char, int> {
             {'A', -1}, // They Rock
             {'B', 0},  // They Paper
             {'C', 1},  // They Scissors
-            {'X', 1},  // You Rock
-            {'Y', 4},  // You Paper
-            {'Z', 7}   // You Scissors
+            {'X', 1},  // You Lose
+            {'Y', 4},  // You Draw
+            {'Z', 7}   // You Win
         };
-        public static readonly Dictionary<char,int> points = new Dictionary<char, int> {
-            {'X', 1},
-            {'Y', 2},
-            {'Z', 3}
+        
+        public static readonly Dictionary<char,int> points = new Dictionary<char,int> {
+            {'X', 0},
+            {'Y', 3},
+            {'Z', 6}
         };
         
         public static readonly int[] results = {DRAW, LOST, WON, WON, DRAW, LOST, LOST, WON, DRAW};
+        public static readonly int[] yourPlay = {SCISSORS, ROCK, PAPER, ROCK, PAPER, SCISSORS, PAPER, SCISSORS, ROCK};
     
     public static int CalcPoints(char them, char you) {
-        return points[you] + results[decoder[them] + decoder[you]];
+        return points[you] + yourPlay[decoder[them] + decoder[you]];
     }
     
     public static void Main() {
