@@ -130,22 +130,6 @@ public class DayThree {
     public static void Main() {
         var input = Utils.GetInput("03.txt");
         int total = 0;
-        // foreach (var line in input) {
-        //     bool[] isRepeat = new bool[52];
-        //     for (int i = 0; i < line.Length/2; i++) {
-        //         char c = line[i];
-        //         int type = (Char.IsUpper(c)) ? (int)c - (int)'A'+26 : (int)c - (int)'a';
-        //         isRepeat[type] = true;                    
-        //     }
-        //     for (int i = line.Length/2; i < line.Length; i++) {
-        //         char c = line[i];
-        //         int type = (Char.IsUpper(c)) ? (int)c - (int)'A'+26 : (int)c - (int)'a';
-        //         if (isRepeat[type]) {
-        //             total += calcPriority(c);
-        //             break;
-        //         }
-        //     }
-        // }
         for (int i = 0; i < input.Length; i+=3) {
             var elves = new string[3];
             elves[0] = input[i];
@@ -172,6 +156,10 @@ public class DayThree {
         }
         Console.WriteLine(total);
     }
+}
+
+public class DayFour{
+
 }
 
 }
