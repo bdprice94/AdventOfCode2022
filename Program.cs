@@ -173,10 +173,11 @@ public class DayFour{
                     sections[i][j] = Int32.Parse(stringSection[j]);
                 }
             }
-            if ((sections[0][0] <= sections[1][0] && sections[0][1] >= sections[1][1])
-                ||
-                (sections[0][0] >= sections[1][0] && sections[0][1] <= sections[1][1])
-                )
+            // [0][0] = First elf start
+            // [0][1] = First elf end
+            // [1][0] = Second elf start
+            // [1][1] = Second elf end
+            if (!(sections[0][0] > sections[1][1]) && !(sections[0][1] < sections[1][0]))
             {
                 total += 1;
             }
