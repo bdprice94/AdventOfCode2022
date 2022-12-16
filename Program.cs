@@ -1,23 +1,5 @@
 ﻿namespace AdventOfCode2022 {
 
-public class Elf {
-    public Elf(List<int> foods) {
-        Food = new List<int>(foods);
-        TotalCalories = Food.Sum();
-    }
-    
-    public List<int> Food {get;}
-
-    public int TotalCalories {get;}
-    
-    public int HighestCaloricFood() {
-        return Food.Aggregate((x, y) => x > y ? x : y);
-    }
-    
-    public int FoodCount() {
-        return Food.Count;
-    }
-}
 
 public class Utils {
     public static string[] GetInput(String s) {
@@ -28,6 +10,24 @@ public class Utils {
 }
 
 public class DayOne {
+    public class Elf {
+        public Elf(List<int> foods) {
+            Food = new List<int>(foods);
+            TotalCalories = Food.Sum();
+        }
+        
+        public List<int> Food {get;}
+
+        public int TotalCalories {get;}
+        
+        public int HighestCaloricFood() {
+            return Food.Aggregate((x, y) => x > y ? x : y);
+        }
+        
+        public int FoodCount() {
+            return Food.Count;
+        }
+    }
     public static void Main() {
 
         // grab our input file contents
@@ -73,29 +73,29 @@ public class DayOne {
 }
 
 public class DayTwo {
-        public const int LOST = 0;
-        public const int DRAW = 3;
-        public const int WON = 6;
-        public const int ROCK = 1;
-        public const int PAPER = 2;
-        public const int SCISSORS = 3;
-        public static readonly Dictionary<char,int> decoder = new Dictionary<char, int> {
-            {'A', -1}, // They Rock
-            {'B', 0},  // They Paper
-            {'C', 1},  // They Scissors
-            {'X', 1},  // You Lose
-            {'Y', 4},  // You Draw
-            {'Z', 7}   // You Win
-        };
-        
-        public static readonly Dictionary<char,int> points = new Dictionary<char,int> {
-            {'X', 0},
-            {'Y', 3},
-            {'Z', 6}
-        };
-        
-        public static readonly int[] results = {DRAW, LOST, WON, WON, DRAW, LOST, LOST, WON, DRAW};
-        public static readonly int[] yourPlay = {SCISSORS, ROCK, PAPER, ROCK, PAPER, SCISSORS, PAPER, SCISSORS, ROCK};
+    public const int LOST = 0;
+    public const int DRAW = 3;
+    public const int WON = 6;
+    public const int ROCK = 1;
+    public const int PAPER = 2;
+    public const int SCISSORS = 3;
+    public static readonly Dictionary<char,int> decoder = new Dictionary<char, int> {
+        {'A', -1}, // They Rock
+        {'B', 0},  // They Paper
+        {'C', 1},  // They Scissors
+        {'X', 1},  // You Lose
+        {'Y', 4},  // You Draw
+        {'Z', 7}   // You Win
+    };
+    
+    public static readonly Dictionary<char,int> points = new Dictionary<char,int> {
+        {'X', 0},
+        {'Y', 3},
+        {'Z', 6}
+    };
+    
+    public static readonly int[] results = {DRAW, LOST, WON, WON, DRAW, LOST, LOST, WON, DRAW};
+    public static readonly int[] yourPlay = {SCISSORS, ROCK, PAPER, ROCK, PAPER, SCISSORS, PAPER, SCISSORS, ROCK};
     
     public static int CalcPoints(char them, char you) {
         return points[you] + yourPlay[decoder[them] + decoder[you]];
@@ -113,6 +113,64 @@ public class DayTwo {
         var score = instructions.Aggregate(0, (int x, Tuple<char,char> y) => x + CalcPoints(y.Item1, y.Item2), (int x) => x);
         
         Console.Write(score);
+    }
+}
+
+public class DayThree {
+    
+    public static int CalcPriority(char c) {
+        if (Char.IsUpper(c)) {
+            return (int)c - (int)'A' + 27;
+        }
+        else {
+            return (int)c - (int)'a' + 1;
+        }
+    }
+    
+    public static void Main() {
+        var input = Utils.GetInput("03.txt");
+        int total = 0;
+        // foreach (var line in input) {
+        //     bool[] isRepeat = new bool[52];
+        //     for (int i = 0; i < line.Length/2; i++) {
+        //         char c = line[i];
+        //         int type = (Char.IsUpper(c)) ? (int)c - (int)'A'+26 : (int)c - (int)'a';
+        //         isRepeat[type] = true;                    
+        //     }
+        //     for (int i = line.Length/2; i < line.Length; i++) {
+        //         char c = line[i];
+        //         int type = (Char.IsUpper(c)) ? (int)c - (int)'A'+26 : (int)c - (int)'a';
+        //         if (isRepeat[type]) {
+        //             total += calcPriority(c);
+        //             break;
+        //         }
+        //     }
+        // }
+        for (int i = 0; i < input.Length; i+=3) {
+            var elves = new string[3];
+            elves[0] = input[i];
+            elves[1] = input[i+1];
+            elves[2] = input[i+2];
+            
+            int[] isRepeat = new int[52];
+            for (int j = 0; j < 3; j++) {
+                bool[] counted = new bool[52];
+                for (int k = 0; k < elves[j].Length; k++) {
+                    char c = elves[j][k];
+                    int type = (Char.IsUpper(c)) ? (int)c - (int)'A'+26 : (int)c - (int)'a';
+                    if (!counted[type]) {
+                        if (isRepeat[type] == 2) {
+                            total += CalcPriority(c);
+                            break;
+                        }
+                        counted[type] = true;
+                        isRepeat[type]++;
+                    }
+                }
+            }
+
+        }
+        Console.WriteLine(total);
     }
 }
 
