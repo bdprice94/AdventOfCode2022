@@ -159,7 +159,30 @@ public class DayThree {
 }
 
 public class DayFour{
-
+    
+    public static void  Main() {
+        var input = Utils.GetInput("04.txt");
+        int total = 0;
+        foreach (var line in input) {
+            var sections = new int[2][];
+            var elves = line.Split(",");
+            for (int i = 0; i < 2; i++) {
+                sections[i] = new int[2];
+                var stringSection = elves[i].Split("-");
+                for (int j = 0; j < 2; j++) {
+                    sections[i][j] = Int32.Parse(stringSection[j]);
+                }
+            }
+            if ((sections[0][0] <= sections[1][0] && sections[0][1] >= sections[1][1])
+                ||
+                (sections[0][0] >= sections[1][0] && sections[0][1] <= sections[1][1])
+                )
+            {
+                total += 1;
+            }
+        }
+    Console.WriteLine(total);
+    }
 }
 
 }
