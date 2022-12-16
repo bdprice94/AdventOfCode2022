@@ -19,16 +19,21 @@ public class Elf {
     }
 }
 
+public class Utils {
+    public static string[] GetInput(String s) {
+        string CD = AppDomain.CurrentDomain.BaseDirectory;
+        string inputFile = System.IO.Path.Combine(CD, @"..\..\..\inputs\" + s);
+        return System.IO.File.ReadAllLines(inputFile);
+    }
+}
+
 public class DayOne {
     public static void Main() {
-        var elves = new List<Elf>();
-        var foods = new List<int>();
 
         // grab our input file contents
-        string CD = AppDomain.CurrentDomain.BaseDirectory;
-        string inputFile = System.IO.Path.Combine(CD, @"..\..\..\inputs\01.txt");
-        string[] lines = System.IO.File.ReadAllLines(inputFile);
-        
+        string[] lines = Utils.GetInput("01.txt");
+        var elves = new List<Elf>();
+        var foods = new List<int>();
 
         // parse input file into our data structures
         foreach (var line in lines) {
@@ -64,6 +69,45 @@ public class DayOne {
             total += topElves.Dequeue().TotalCalories;
         }
         Console.WriteLine("Top 3 Largest Elves: " + total);
+    }
+}
+
+public class DayTwo {
+        public const int LOST = 0;
+        public const int DRAW = 3;
+        public const int WON = 6;
+        public static readonly Dictionary<char,int> decoder = new Dictionary<char, int> {
+            {'A', -1}, // They Rock
+            {'B', 0},  // They Paper
+            {'C', 1},  // They Scissors
+            {'X', 1},  // You Rock
+            {'Y', 4},  // You Paper
+            {'Z', 7}   // You Scissors
+        };
+        public static readonly Dictionary<char,int> points = new Dictionary<char, int> {
+            {'X', 1},
+            {'Y', 2},
+            {'Z', 3}
+        };
+        
+        public static readonly int[] results = {DRAW, LOST, WON, WON, DRAW, LOST, LOST, WON, DRAW};
+    
+    public static int CalcPoints(char them, char you) {
+        return points[you] + results[decoder[them] + decoder[you]];
+    }
+    
+    public static void Main() {
+
+        var instructions = new List<Tuple<char, char>>();
+        var inputs = Utils.GetInput("02.txt");
+        
+        foreach (var line in inputs) {
+            instructions.Add(Tuple.Create(line[0], line[2]));            
+        }
+
+        var score = instructions.Aggregate(0, (int x, Tuple<char,char> y) => x + CalcPoints(y.Item1, y.Item2), (int x) => x);
+        
+        Console.Write(score);
     }
 }
 
