@@ -350,15 +350,18 @@ public class DaySeven {
             }
         }
         
-        // Then, we recursively look at the directory sizes!
-        int total = 0;
+        // Now we find which to delete
+        int totalSpace = 70000000;
+        int spaceNeeded = 30000000;
+        int smallest = root.Size();
         foreach (var dir in directories) {
-            if (dir.Size() <= 100000) {
-                total += dir.Size();
+            var size = dir.Size();
+            if (size < smallest && (totalSpace - root.Size()) + size >= spaceNeeded) {
+                smallest = size;
             }
         }
         
-        Console.WriteLine(total);
+        Console.WriteLine(smallest);
     }
 }
 
