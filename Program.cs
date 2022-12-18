@@ -186,4 +186,49 @@ public class DayFour{
     }
 }
 
+public class DayFive {
+
+    public static void Main() {
+        var input = Utils.GetInput("05.txt");
+        // This input parsing is going to be very hacky. Sorry!
+        // parse stack contents
+        var stacks = new Stack<char>[9];
+        int offset = 0;
+        for (int i = 0; i < 9; i++) { // For each stack
+            stacks[i] = new Stack<char>(20);
+            for (int j = 8; j >= 0; j--) { // for each possible item in stack (max stack items = 8)
+                if (input[j][offset] == '[') {
+                    stacks[i].Push(input[j][offset+1]);
+                }
+            } // end foreach item
+            offset += 4;
+        } // end foreach stack
+        
+        // parse instructions
+        var instructions = new int[input.Length-10][];
+        for (int i = 10; i < input.Length; i++) {
+            var instruction = new int[3];
+            var splitLine = input[i].Split(" ");
+            instruction[0] = Int32.Parse(splitLine[1]);
+            instruction[1] = Int32.Parse(splitLine[3]);
+            instruction[2] = Int32.Parse(splitLine[5]);
+            instructions[i-10] = instruction;
+        }
+        
+        // start the crane!
+        foreach (var instruction in instructions) {
+            for (int i = 0; i < instruction[0]; i++) {
+                stacks[instruction[2]-1].Push(stacks[instruction[1]-1].Pop());
+            }
+        }
+
+        // get our tops!
+        string result = "";
+        foreach (var stack in stacks) {
+            result += stack.Pop();
+        }
+        Console.Write(result);
+    }
+}
+
 }
