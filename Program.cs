@@ -217,8 +217,12 @@ public class DayFive {
         
         // start the crane!
         foreach (var instruction in instructions) {
+            var tempStack = new Stack<char>(instruction[0]);
             for (int i = 0; i < instruction[0]; i++) {
-                stacks[instruction[2]-1].Push(stacks[instruction[1]-1].Pop());
+                tempStack.Push(stacks[instruction[1]-1].Pop());
+            }
+            for (int i = 0; i < instruction[0]; i++) {
+                stacks[instruction[2]-1].Push(tempStack.Pop());
             }
         }
 
