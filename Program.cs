@@ -193,15 +193,13 @@ public class DayFive {
         // This input parsing is going to be very hacky. Sorry!
         // parse stack contents
         var stacks = new Stack<char>[9];
-        int offset = 0;
-        for (int i = 0; i < 9; i++) { // For each stack
+        for (int i = 0, offset = 0; i < 9; i++, offset += 4) { // For each stack
             stacks[i] = new Stack<char>(20);
             for (int j = 8; j >= 0; j--) { // for each possible item in stack (max stack items = 8)
                 if (input[j][offset] == '[') {
                     stacks[i].Push(input[j][offset+1]);
                 }
             } // end foreach item
-            offset += 4;
         } // end foreach stack
         
         // parse instructions
@@ -233,6 +231,47 @@ public class DayFive {
         }
         Console.Write(result);
     }
+}
+
+public class DaySix {
+    public static readonly int LENGTH = 4;
+    public static void Main() {
+        var input = Utils.GetInput("06.txt")[0]; // just getting one line
+        for (int i = LENGTH-1; i < input.Length; i++) {
+            int moveAmount = 0;
+            // probably could use recursion rather than this ugly loop madness
+            for (int j = i-1; j > i-LENGTH; j--) {
+                if (input[i] == input[j]) {
+                    moveAmount = 1;
+                    goto sorry;                            
+                }
+                for (int k = j-1; k > i-LENGTH; k--) {
+                    if (input[j] == input[k]) {
+                        moveAmount = 1;
+                        goto sorry;                            
+                    }
+                    for (int l = k-1; l > i-LENGTH; l--) {
+                        if (input[k] == input[j]) {
+                            moveAmount = 1;
+                            goto sorry;                            
+                        }
+                    }
+                }
+            }
+            
+            sorry:
+            if (moveAmount == 0) {
+                Console.WriteLine(i+1);
+                return;
+            }
+            else {
+                i += moveAmount-1;
+            }
+        }
+        
+        Console.WriteLine("Not supposed to get here!");
+    }
+
 }
 
 }
