@@ -234,39 +234,28 @@ public class DayFive {
 }
 
 public class DaySix {
-    public static readonly int LENGTH = 4;
+    public static readonly int LENGTH = 14;
+    public static int recurseFindMessage(string s) {
+        if (s.Length == 1) {
+            return 0;
+        }
+        for (int i = s.Length-2; i >= 0; i--) {
+            if (s[i] == s.Last()) {
+                return i+1; // don't know if this results in an off-by-one error somewhere butttt we got the right answer
+            }
+        }
+        return recurseFindMessage(s.Substring(0,s.Length-1));
+    }
     public static void Main() {
         var input = Utils.GetInput("06.txt")[0]; // just getting one line
-        for (int i = LENGTH-1; i < input.Length; i++) {
-            int moveAmount = 0;
-            // probably could use recursion rather than this ugly loop madness
-            for (int j = i-1; j > i-LENGTH; j--) {
-                if (input[i] == input[j]) {
-                    moveAmount = 1;
-                    goto sorry;                            
-                }
-                for (int k = j-1; k > i-LENGTH; k--) {
-                    if (input[j] == input[k]) {
-                        moveAmount = 1;
-                        goto sorry;                            
-                    }
-                    for (int l = k-1; l > i-LENGTH; l--) {
-                        if (input[k] == input[j]) {
-                            moveAmount = 1;
-                            goto sorry;                            
-                        }
-                    }
-                }
-            }
-            
-            sorry:
-            if (moveAmount == 0) {
-                Console.WriteLine(i+1);
+        for (int i = LENGTH; i < input.Length; i++) {
+            var substr = input.Substring(i-LENGTH, LENGTH);
+            var idx = recurseFindMessage(substr);
+            if (idx == 0) {
+                Console.WriteLine(i);
                 return;
             }
-            else {
-                i += moveAmount-1;
-            }
+            i += idx-1;
         }
         
         Console.WriteLine("Not supposed to get here!");
