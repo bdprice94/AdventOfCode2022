@@ -263,4 +263,104 @@ public class DaySix {
 
 }
 
+public class DaySeven {
+
+    public interface File {
+        public string Name();
+        public int Size();
+    }
+
+    public class PlainFile : File {
+        private readonly int _size;
+        private readonly string _name;
+
+        public PlainFile(string name, int size) {
+            _size = size;
+            _name = name;
+        }
+        
+        public string Name() {return _name;}
+        public int Size() {return _size;}
+    }
+
+    public class Directory : File {
+        public readonly List<File> Files = new List<File>();
+        private readonly string _name;
+        public Directory(string name, Directory parent) {
+            _name = name;
+            Parent = parent ?? this;
+        }
+        
+        public void AddFile(File f) {
+            Files.Add(f);
+        }
+        public string Name() {return _name;}
+        
+        public int Size() {
+            return Files.Aggregate(0, (total, file) => total + file.Size());
+        }
+        
+        public Directory Parent {get;}
+    }
+
+    public static void Main() {
+        var input = Utils.GetInput("07.txt");
+        
+        // First, we build our system directory
+        var root = new Directory("/", null);
+        var directories = new List<Directory>();
+        directories.Add(root);
+        var cd = root;
+        for (int i = 1; i < input.Length; i++) {
+            var line = input[i];
+            var command = line.Split(" ");
+            switch (command[1]) {
+                case "cd":
+                    if (command[2] == "..") {
+                        cd = cd.Parent;
+                    }
+                    else {
+                        foreach (var file in cd.Files) {
+                            if (file.Name() == command[2]) {
+                                cd = (Directory) file; // could break but ehhhh garbage in...
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                case "ls":
+                    // ugh brain melted this so ugly sry
+                    i++;
+                    while (i < input.Length && input[i][0] != '$') {
+                        line = input[i];
+                        var details = line.Split(" ");
+                        if (details[0] == "dir") {
+                            var dir = new Directory(details[1], cd);
+                            cd.AddFile(dir);
+                            directories.Add(dir);
+                        }
+                        else {
+                            var fil = new PlainFile(details[1], Int32.Parse(details[0]));
+                            cd.AddFile(fil);
+                        }
+                        i++;
+                    }
+                    i--;
+                    break;
+            }
+        }
+        
+        // Then, we recursively look at the directory sizes!
+        int total = 0;
+        foreach (var dir in directories) {
+            if (dir.Size() <= 100000) {
+                total += dir.Size();
+            }
+        }
+        
+        Console.WriteLine(total);
+    }
+}
+
+
 }
