@@ -286,7 +286,7 @@ public class DaySeven {
     public class Directory : File {
         public readonly List<File> Files = new List<File>();
         private readonly string _name;
-        public Directory(string name, Directory parent) {
+        public Directory(string name, Directory? parent) {
             _name = name;
             Parent = parent ?? this;
         }
@@ -362,6 +362,60 @@ public class DaySeven {
         }
         
         Console.WriteLine(smallest);
+    }
+}
+
+public class DayEight {
+    public const int DIM = 99;
+    public static void Main() {
+        var input = Utils.GetInput("08.txt");
+        var forest = new int[DIM][];
+        for (int i = 0; i < DIM; i++) {
+            forest[i] = new int[DIM];
+            for (int j = 0; j < DIM; j++) {
+                forest[i][j] = (int)input[i][j] - (int)'0';
+            }
+        }
+        
+        
+        var visible = new bool[DIM][];
+        for (int i = 0; i < DIM; i++) {
+            visible[i] = new bool[DIM];
+        }
+        for (int i = 0; i < DIM; i++) {
+            int northwardMax = -1;
+            int westwardMax  = -1;
+            int eastwardMax  = -1;
+            int southwardMax = -1;
+            for (int j = 0; j < DIM; j++) {
+                if (forest[i][j] > eastwardMax) {
+                    eastwardMax = forest[i][j];
+                    visible[i][j] = true;
+                }
+                if (forest[i][DIM-1-j] > westwardMax) {
+                    westwardMax = forest[i][DIM-j-1];
+                    visible[i][DIM-1-j] = true;
+                }
+                if (forest[j][i] > southwardMax) {
+                    southwardMax = forest[j][i];
+                    visible[j][i] = true;                    
+                }
+                if (forest[DIM-1-j][i] > northwardMax) {
+                    northwardMax = forest[DIM-j-1][i];
+                    visible[DIM-1-j][i] = true;
+                }
+            }
+        }
+        
+        int total = 0;
+        foreach (var row in visible) {
+            foreach (var cell in row) {
+                if (cell) total++;
+            }
+        }
+        
+        Console.WriteLine(total);
+
     }
 }
 
