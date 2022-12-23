@@ -377,44 +377,69 @@ public class DayEight {
             }
         }
         
-        
-        var visible = new bool[DIM][];
+        var scores = new int[DIM][][];
         for (int i = 0; i < DIM; i++) {
-            visible[i] = new bool[DIM];
-        }
-        for (int i = 0; i < DIM; i++) {
-            int northwardMax = -1;
-            int westwardMax  = -1;
-            int eastwardMax  = -1;
-            int southwardMax = -1;
+            scores[i] = new int[DIM][];
             for (int j = 0; j < DIM; j++) {
-                if (forest[i][j] > eastwardMax) {
-                    eastwardMax = forest[i][j];
-                    visible[i][j] = true;
-                }
-                if (forest[i][DIM-1-j] > westwardMax) {
-                    westwardMax = forest[i][DIM-j-1];
-                    visible[i][DIM-1-j] = true;
-                }
-                if (forest[j][i] > southwardMax) {
-                    southwardMax = forest[j][i];
-                    visible[j][i] = true;                    
-                }
-                if (forest[DIM-1-j][i] > northwardMax) {
-                    northwardMax = forest[DIM-j-1][i];
-                    visible[DIM-1-j][i] = true;
+                scores[i][j] = new int[4];
+            }
+        }
+        const int WEST  = 0;
+        const int EAST  = 1;
+        const int NORTH = 2;
+        const int SOUTH = 3;
+        for (int i = 0; i < DIM; i++) {
+            for (int j = 0; j < DIM; j++) {
+                bool northBlocked = false;
+                bool southBlocked = false;
+                bool eastBlocked = false;
+                bool westBlocked = false;
+                for (int k = j-1
+                        ;k >= 0 && !(northBlocked && southBlocked && eastBlocked && westBlocked )
+                        ;k--) {
+                    if (!eastBlocked && forest[i][k] >= forest[i][j]) {
+                        eastBlocked = true;
+                        scores[i][j][EAST]++;
+                    }
+                    else {
+                        scores[i][j][EAST]++;
+                    }
+                    if (!westBlocked && forest[i][DIM-1-k] >= forest[i][DIM-1-j]) {
+                        westBlocked = true;
+                        scores[i][DIM-1-j][WEST]++;
+                    }
+                    else {
+                        scores[i][DIM-1-j][WEST]++;
+                    }
+                    if (!northBlocked && forest[k][i] >= forest[j][i]) {
+                        northBlocked = true;
+                        scores[j][i][NORTH]++;
+                    }
+                    else {
+                        scores[j][i][NORTH]++;
+                    }
+                    if (!southBlocked && forest[DIM-1-k][i] >= forest[DIM-1-j][i]) {
+                        southBlocked = true;
+                        scores[DIM-1-j][i][SOUTH]++;
+                    }
+                    else {
+                        scores[DIM-1-j][i][SOUTH]++;
+                    }
                 }
             }
         }
         
-        int total = 0;
-        foreach (var row in visible) {
+        int highest = 0;
+        foreach (var row in scores) {
             foreach (var cell in row) {
-                if (cell) total++;
+                int score = cell[NORTH] * cell[SOUTH] * cell[EAST] * cell[WEST];
+                if (highest < score) {
+                    highest = score;
+                }
             }
         }
         
-        Console.WriteLine(total);
+        Console.WriteLine(highest);
 
     }
 }
