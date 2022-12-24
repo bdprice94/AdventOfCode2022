@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode2022 {
+﻿using Trace = System.Diagnostics.Trace;
+
+namespace AdventOfCode2022 {
 
 
 public class Utils {
@@ -444,5 +446,146 @@ public class DayEight {
     }
 }
 
+public class DayNine {
+    public  const int UP = 0;
+    public  const int DOWN = 1;
+    public  const int LEFT = 2;
+    public  const int RIGHT = 3;
+    public  const int DIR = 0;
+    public  const int AMN = 1;
+    public  const int NEWHEAD = 0;
+    public  const int NEWTAIL = 1;
+    public  const int x = 0;
+    public  const int y = 1;
+    public static Point upIter = new Point(0, 1);
+    public static Point downIter = new Point(0, -1);
+    public static Point leftIter = new Point(-1, 0);
+    public static Point rightIter = new Point(1, 0);
+    public class Point {
+        public int x {get;}
+        public int y{get;}
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        public static Point operator +(Point a) => a;
+        public static Point operator -(Point a) => new Point(-a.x, -a.y);
+        public static Point operator +(Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
+        public static Point operator -(Point a, Point b) => new Point(a.x - b.x, a.y-b.y);
+        public static bool operator ==(Point a, Point b) => a.x == b.x && a.y == b.y;
+        public static bool operator !=(Point a, Point b) => a.x != b.x || a.y != b.y;
+        public override bool Equals(Object? o) {
+            if (o == null || !this.GetType().Equals(o.GetType())) {
+                return false;
+            }
+            return this == (Point)o;
+        }
+        public override int GetHashCode() {
+            return HashCode.Combine(x, y);
+        }
+        public int largestDifference() => Math.Abs(x) > Math.Abs(y) ? x : y;
+    }
+    public static void Main() {
+        var input = Utils.GetInput("09.txt");
+        
+        int maxLat = 0;
+        int minLat = 0;
+        int maxLong = 0;
+        int minLong = 0;
+        int currentLat = 0;
+        int currentLong = 0;
+        var instructions = new List<int[]>();
+        foreach (var line in input) {
+            var instruction = new int[2];
+            var split = line.Split(" ");
+            var direction = split[0];
+            var amount = Int32.Parse(split[1]);
+            switch(line[0]) {
+                case 'U':
+                    instruction[DIR] = UP;
+                    instruction[AMN] = amount;
+                    currentLat += amount;
+                    if (currentLat > maxLat) { maxLat = currentLat; }
+                    break;
+                case 'D':
+                    instruction[DIR] = DOWN;
+                    instruction[AMN] = amount;
+                    currentLat -= amount;
+                    if (currentLat < minLat) { minLat = currentLat; }
+                    break;
+                case 'L':
+                    instruction[DIR] = LEFT;
+                    instruction[AMN] = amount;
+                    currentLong -= amount;
+                    if (currentLong < minLong) { minLong = currentLong; }
+                    break;
+                case 'R':
+                    instruction[DIR] = RIGHT;
+                    instruction[AMN] = amount;
+                    currentLong += amount;
+                    if (currentLong > maxLong) { maxLong = currentLong; }
+                    break;
+                default:
+                    Console.WriteLine("Uhoh, we shoudln't get here! Input: " + line[0]);
+                    break;
+            }
+            
+            instructions.Add(instruction);
+        }
+        
+        int height = maxLat - minLat + 1;
+        int width  = maxLong - minLong + 1;
+        
+        var traveled = new bool[height][];
+        for (int i = 0; i < height; i++) {
+            traveled[i] = new bool[width];
+        }
+        
+        var startX = Math.Abs(minLong);
+        var startY = Math.Abs(minLat);
+        var head = new Point(startX, startY);
+        var tail = new Point(startX, startY);
+        traveled[startY][startX] = true;
+        int totalNew = 1;
+        foreach (var instr in instructions) {
+            Point destPoint;
+            Point iter;
+            switch (instr[DIR]) {
+                case UP:
+                    destPoint = new Point(head.x, head.y + instr[AMN]);
+                    iter = upIter;
+                    break;
+                case DOWN:
+                    destPoint = new Point(head.x, head.y - instr[AMN]);
+                    iter = downIter;
+                    break;
+                case LEFT:
+                    destPoint = new Point(head.x - instr[AMN], head.y);
+                    iter = leftIter;
+                    break;
+                case RIGHT:
+                    destPoint = new Point(head.x + instr[AMN], head.y);
+                    iter = rightIter;
+                    break;
+                default:
+                    iter = new Point(0, 0);
+                    destPoint = new Point(0, 0);
+                    Console.WriteLine("Error: Shouldn't be here. Instruction: " + instr[DIR]);
+                    break;
+            }
+            
+            while (head != destPoint) {
+                head += iter;                
+                var diff = head - tail;
+                if (Math.Abs(diff.y) > 1 || Math.Abs(diff.x) > 1) {
+                    tail = head - iter;
+                    if (!traveled[tail.y][tail.x]) { totalNew++; }
+                    traveled[tail.y][tail.x] = true;
+                }
+            }
+        }
+        Console.WriteLine(totalNew);
+    }
+}
 
 }
