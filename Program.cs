@@ -453,17 +453,13 @@ public class DayNine {
     public  const int RIGHT = 3;
     public  const int DIR = 0;
     public  const int AMN = 1;
-    public  const int NEWHEAD = 0;
-    public  const int NEWTAIL = 1;
-    public  const int x = 0;
-    public  const int y = 1;
     public static Point upIter = new Point(0, 1);
     public static Point downIter = new Point(0, -1);
     public static Point leftIter = new Point(-1, 0);
     public static Point rightIter = new Point(1, 0);
     public class Point {
-        public int x {get;}
-        public int y{get;}
+        public int x {get; set;}
+        public int y {get; set;}
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
@@ -483,7 +479,27 @@ public class DayNine {
         public override int GetHashCode() {
             return HashCode.Combine(x, y);
         }
-        public int largestDifference() => Math.Abs(x) > Math.Abs(y) ? x : y;
+        public void Deconstruct(out int _x, out int _y) {
+            _x = x;
+            _y = y;
+        }
+        public Point findFollowSpot(Point f) {
+            var (xDiff, yDiff) = this - f;
+            if (Math.Abs(xDiff) == Math.Abs(yDiff)) {
+                // Four types of movement here because of diagonal!
+                int newX = (xDiff > 0) ? 1 : -1;
+                int newY = (yDiff > 0) ? 1 : -1;
+                return new Point(newX, newY);
+            }
+            else if (Math.Abs(xDiff) > Math.Abs(yDiff)) {
+                if (xDiff > 0) { return rightIter; }
+                else           { return leftIter; }
+            }
+            else {
+                if (yDiff > 0) { return upIter; }
+                else           { return downIter; }
+            }
+        }
     }
     public static void Main() {
         var input = Utils.GetInput("09.txt");
@@ -544,44 +560,53 @@ public class DayNine {
         var startX = Math.Abs(minLong);
         var startY = Math.Abs(minLat);
         var head = new Point(startX, startY);
-        var tail = new Point(startX, startY);
+        var knots = new List<Point>(9);
+        for (int i = 0; i < 9; i++) {
+            knots.Add(new Point(startX, startY));
+        }
+        var tail = knots.Last();
         traveled[startY][startX] = true;
         int totalNew = 1;
         foreach (var instr in instructions) {
             Point destPoint;
-            Point iter;
+            Point headIter;
             switch (instr[DIR]) {
                 case UP:
                     destPoint = new Point(head.x, head.y + instr[AMN]);
-                    iter = upIter;
+                    headIter = upIter;
                     break;
                 case DOWN:
                     destPoint = new Point(head.x, head.y - instr[AMN]);
-                    iter = downIter;
+                    headIter = downIter;
                     break;
                 case LEFT:
                     destPoint = new Point(head.x - instr[AMN], head.y);
-                    iter = leftIter;
+                    headIter = leftIter;
                     break;
                 case RIGHT:
                     destPoint = new Point(head.x + instr[AMN], head.y);
-                    iter = rightIter;
+                    headIter = rightIter;
                     break;
                 default:
-                    iter = new Point(0, 0);
+                    headIter = new Point(0, 0);
                     destPoint = new Point(0, 0);
                     Console.WriteLine("Error: Shouldn't be here. Instruction: " + instr[DIR]);
                     break;
             }
             
             while (head != destPoint) {
-                head += iter;                
-                var diff = head - tail;
-                if (Math.Abs(diff.y) > 1 || Math.Abs(diff.x) > 1) {
-                    tail = head - iter;
-                    if (!traveled[tail.y][tail.x]) { totalNew++; }
-                    traveled[tail.y][tail.x] = true;
+                head += headIter;
+                Point lead = head;
+                foreach (var knot in knots) {
+                    var diff = lead - knot;
+                    if (Math.Abs(diff.y) > 1 || Math.Abs(diff.x) > 1) {
+                        var knotIter = lead.findFollowSpot(knot);
+                        (knot.x, knot.y) = lead - knotIter;
+                    }
+                    lead = knot;
                 }
+                if (!traveled[tail.y][tail.x]) { totalNew++; }
+                traveled[tail.y][tail.x] = true;
             }
         }
         Console.WriteLine(totalNew);
