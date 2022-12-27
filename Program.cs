@@ -613,4 +613,50 @@ public class DayNine {
     }
 }
 
+public class DayTen {
+    public const int ADDX = 0;
+    public const int ADDX2 = 1;
+    public const int NOOP = 3;
+    public const int INSTR = 0;
+    public const int AMNT = 1;
+    public static void Main() {
+        var input = Utils.GetInput("10.txt");
+        var instructions = new List<int[]>();
+        foreach (var line in input) {
+            var split = line.Split(" ");
+            if (split[0] == "addx") {
+                var first = new int[] {ADDX, 0};
+                var second = new int[] {ADDX2, Int32.Parse(split[1])};
+                instructions.Add(first);
+                instructions.Add(second);
+            }
+            else {
+                var inst = new int[] {NOOP, 0};
+                instructions.Add(inst);
+            }
+        }
+        
+        int x = 1;
+        var strengths = new List<int>();
+        int cycle = 1;
+        foreach (var instr in instructions) {
+            if ((cycle + 20) % 40 == 0) {
+                strengths.Add(cycle * x);
+            }
+            
+            if (instr[INSTR] == ADDX) {
+                cycle++;
+            }
+            else if (instr[INSTR] == NOOP) {
+                cycle++;
+            }
+            else {
+                x += instr[AMNT];
+                cycle++;
+            }
+        }
+        Console.WriteLine(strengths.Aggregate((x, y) => x + y));
+    }
+}
+
 }
