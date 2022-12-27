@@ -637,25 +637,28 @@ public class DayTen {
         }
         
         int x = 1;
-        var strengths = new List<int>();
+        var image = new char[6][];
+        for (int i = 0; i < 6; i++) {
+            image[i] = new char[40];
+        }
         int cycle = 1;
         foreach (var instr in instructions) {
-            if ((cycle + 20) % 40 == 0) {
-                strengths.Add(cycle * x);
-            }
-            
-            if (instr[INSTR] == ADDX) {
-                cycle++;
-            }
-            else if (instr[INSTR] == NOOP) {
-                cycle++;
+            if (Math.Abs(((cycle-1)%40) - x) < 2) {
+                image[(cycle-1)/40][(cycle-1)%40] = '#';
             }
             else {
-                x += instr[AMNT];
-                cycle++;
+                image[(cycle-1)/40][(cycle-1)%40] = '.';
             }
+
+            cycle++;
+            if (instr[INSTR] == ADDX2) { x += instr[AMNT]; }
         }
-        Console.WriteLine(strengths.Aggregate((x, y) => x + y));
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 40; j++) {
+                Console.Write(image[i][j]);
+            }
+            Console.WriteLine();
+        }
     }
 }
 
