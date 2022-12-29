@@ -669,15 +669,16 @@ public class DayEleven {
     public const string FOURTHLINE = "    If true: throw to monkey";
     public const string FIFTHLINE = "    If false: throw to monkey";
     public class Monkey {
-        private Queue<int> _items = new Queue<int>();
-        private int _inspectedCount = 0;
-        private int _divisibleCheck;
-        private Func<int, int> _operation;
+        private Queue<ulong> _items = new Queue<ulong>();
+        private ulong _inspectedCount = 0;
+        private ulong _divisibleCheck;
+        public ulong WorryLevelDecrease {get; set;}
+        private Func<ulong, ulong> _operation;
         private List<Monkey> _monkeys;
         private (int, int) _target;
         public Monkey(ref List<Monkey> monkeys,
-                Func<int, int> operation,
-                int divisibleCheck,
+                Func<ulong, ulong> operation,
+                ulong divisibleCheck,
                 (int, int) target
             ) {
             _monkeys = monkeys;
@@ -685,14 +686,14 @@ public class DayEleven {
             _divisibleCheck = divisibleCheck;
             _target = target;
         }
-        public void AddItem(int i) {
+        public void AddItem(ulong i) {
             _items.Enqueue(i);
         }
         public void ThrowItems() {
             while (_items.Count != 0) {
                 _inspectedCount++;
-                int item = _items.Dequeue();
-                item = _operation(item) / 3;
+                ulong item = _items.Dequeue();
+                item = _operation(item) % WorryLevelDecrease;
                 if (item % _divisibleCheck == 0) {
                     _monkeys[_target.Item1].AddItem(item);
                 }
@@ -701,7 +702,7 @@ public class DayEleven {
                 }
             }
         }
-        public int MonkeyBusiness() {
+        public ulong MonkeyBusiness() {
             return _inspectedCount;
         }
     }
@@ -709,47 +710,56 @@ public class DayEleven {
         var inputs = Utils.GetInput("11.txt");
         var inputIter = inputs.GetEnumerator();
         var monkeys = new List<Monkey>();
+        var worryLevelDecreaseSet = new HashSet<ulong>();
         while (inputIter.MoveNext() != false) {
             inputIter.MoveNext();
             var itemsStr = ((string)inputIter.Current).Substring(FIRSTLINE.Length).Split(", ");
             inputIter.MoveNext();
             var operationStr = ((string)inputIter.Current).Substring(SECONDLINE.Length).Split(" ");
             inputIter.MoveNext();
-            var divisibleCheck = Int32.Parse(((string)inputIter.Current).Substring(THIRDLINE.Length));
+            var divisibleCheck = UInt64.Parse(((string)inputIter.Current).Substring(THIRDLINE.Length));
+            worryLevelDecreaseSet.Add(divisibleCheck);
             inputIter.MoveNext();
             var trueMonkey = Int32.Parse(((string)inputIter.Current).Substring(FOURTHLINE.Length));
             inputIter.MoveNext();
             var falseMonkey = Int32.Parse(((string)inputIter.Current).Substring(FIFTHLINE.Length));
             
-            Func<int, int> operation;
+            Func<ulong, ulong> operation;
             if (operationStr[2] == "old" && operationStr[1] == "*") {
-                operation = (int x) => x * x;
+                operation = (ulong x) => x * x;
             }
             else if (operationStr[2] == "old") {
-                operation = (int x) => x + x;
+                operation = (ulong x) => x + x;
             }
             else if (operationStr[1] == "*") {
-                operation = (int x) => x * Int32.Parse(operationStr[2]);
+                operation = (ulong x) => x * UInt64.Parse(operationStr[2]);
             }
             else {
-                operation = (int x) => x + Int32.Parse(operationStr[2]);
+                operation = (ulong x) => x + UInt64.Parse(operationStr[2]);
             }
             Monkey monkey = new Monkey(ref monkeys, operation, divisibleCheck, (trueMonkey, falseMonkey));
             foreach (var item in itemsStr) {
-                monkey.AddItem(Int32.Parse(item));
+                monkey.AddItem(UInt64.Parse(item));
             }
             monkeys.Add(monkey);
             inputIter.MoveNext();
         }
+        ulong worryLevelDecrease = 1;
+        foreach (var x in worryLevelDecreaseSet) {
+            worryLevelDecrease *= x;
+        }
+        foreach (var monkey in monkeys) {
+            monkey.WorryLevelDecrease = worryLevelDecrease;
+        }
         
-        const int ROUNDS = 20;
+        const int ROUNDS = 10000;
         for (int i = 0; i < ROUNDS; i++) {
             foreach (var monkey in monkeys) {
                 monkey.ThrowItems();
             }
         }
         
-        var pq = new PriorityQueue<Monkey, int>(3);
+        var pq = new PriorityQueue<Monkey, ulong>(3);
         pq.Enqueue(monkeys[0], monkeys[0].MonkeyBusiness());
         pq.Enqueue(monkeys[1], monkeys[1].MonkeyBusiness());
         for (int i = 2; i < monkeys.Count; i++) {
