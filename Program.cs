@@ -798,6 +798,10 @@ public class DayTwelve {
                 distance[i] = 0;
                 start = i;
             }
+            else if (input[i/width][i%width] == 'a') {
+                grid[i] = 0;
+                distance[i] = 0;
+            }
             else if (input[i/width][i%width] == 'E') {
                 grid[i] = 25;
                 end = i;
@@ -807,7 +811,7 @@ public class DayTwelve {
             }
         }
         // Time for Dijkstras?
-        while (!visited.Aggregate((x, y) => x && y)) {
+        while (!visited.Aggregate((agg, next) => agg && next)) {
             var point = -1;
             var dist = Int32.MaxValue;
             for (int i = 0; i < width*height; i++) {
