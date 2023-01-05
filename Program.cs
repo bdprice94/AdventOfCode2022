@@ -6,7 +6,7 @@ using Point = DayNine.Point;
 
 public class Utils {
     private static string CD = AppDomain.CurrentDomain.BaseDirectory;
-    public static string debugFile = Path.Combine(CD, @"..\..\..\outputs\output.txt");
+    public static string debugFil = Path.Combine(CD, @"..\..\..\outputs\output.txt");
     public static string[] GetInput(String s) {
         string CD = AppDomain.CurrentDomain.BaseDirectory;
         string inputFile = Path.Combine(CD, @"..\..\..\inputs\" + s);
@@ -799,11 +799,11 @@ public class DayTwelve {
                 start = i;
             }
             else if (input[i/width][i%width] == 'E') {
-                grid[i] = 26;
+                grid[i] = 25;
                 end = i;
             }
             else {
-                grid[i] = (int)input[i/width][i%width] - (int)'a' + 1;
+                grid[i] = (int)input[i/width][i%width] - (int)'a';
             }
         }
         // Time for Dijkstras?
