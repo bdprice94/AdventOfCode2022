@@ -1,13 +1,16 @@
 ﻿using Trace = System.Diagnostics.Trace;
 
 namespace AdventOfCode2022 {
+using Point = DayNine.Point;
 
 
 public class Utils {
+    private static string CD = AppDomain.CurrentDomain.BaseDirectory;
+    public static string debugFile = Path.Combine(CD, @"..\..\..\outputs\output.txt");
     public static string[] GetInput(String s) {
         string CD = AppDomain.CurrentDomain.BaseDirectory;
-        string inputFile = System.IO.Path.Combine(CD, @"..\..\..\inputs\" + s);
-        return System.IO.File.ReadAllLines(inputFile);
+        string inputFile = Path.Combine(CD, @"..\..\..\inputs\" + s);
+        return File.ReadAllLines(inputFile);
     }
 }
 
@@ -672,10 +675,11 @@ public class DayEleven {
         private Queue<ulong> _items = new Queue<ulong>();
         private ulong _inspectedCount = 0;
         private ulong _divisibleCheck;
-        public ulong WorryLevelDecrease {get; set;}
         private Func<ulong, ulong> _operation;
         private List<Monkey> _monkeys;
         private (int, int) _target;
+        // too lazy for this one so poor class interface here we go!
+        public ulong WorryLevelDecrease {get; set;}
         public Monkey(ref List<Monkey> monkeys,
                 Func<ulong, ulong> operation,
                 ulong divisibleCheck,
@@ -744,6 +748,8 @@ public class DayEleven {
             monkeys.Add(monkey);
             inputIter.MoveNext();
         }
+        // Had to look online to figure out how to modulo the worry level without losing
+        // the information about its divisibility
         ulong worryLevelDecrease = 1;
         foreach (var x in worryLevelDecreaseSet) {
             worryLevelDecrease *= x;
@@ -769,6 +775,67 @@ public class DayEleven {
         }
         
         Console.WriteLine(pq.Dequeue().MonkeyBusiness() * pq.Dequeue().MonkeyBusiness());
+    }
+}
+
+public class DayTwelve {
+
+    public static void Main() {
+        var input = Utils.GetInput("12.txt");
+        var height = input.Length;
+        var width = input[0].Length;
+        var grid = new int[width*height];
+        var distance = new int[width*height];
+        for (int i = 0; i < width*height; i++) {
+            distance[i] = Int32.MaxValue;
+        }
+        var visited = new bool[width*height];
+        int start = -1;
+        int end = -1;
+        for (int i = 0; i < width*height; i++) {
+            if (input[i/width][i%width] == 'S') {
+                grid[i] = 0;
+                distance[i] = 0;
+                start = i;
+            }
+            else if (input[i/width][i%width] == 'E') {
+                grid[i] = 26;
+                end = i;
+            }
+            else {
+                grid[i] = (int)input[i/width][i%width] - (int)'a' + 1;
+            }
+        }
+        // Time for Dijkstras?
+        while (!visited.Aggregate((x, y) => x && y)) {
+            var point = -1;
+            var dist = Int32.MaxValue;
+            for (int i = 0; i < width*height; i++) {
+                if (!visited[i] && distance[i] < dist) {
+                    point = i;
+                    dist = distance[i];
+                }
+            }
+            if (dist == Int32.MaxValue) { break; }
+            visited[point] = true;
+            var val = grid[point];
+            var iters = new List<int>(4);
+            if (point >= width) { iters.Add(point-width); }
+            if (point < width*(height-1)) { iters.Add(point+width); }
+            if (point % width != 0) { iters.Add(point-1); }
+            if ((point+1) % width != 0) { iters.Add(point+1); }
+            foreach (var iter in iters) {
+                if (visited[iter] || grid[iter] > val+1 || distance[iter] < dist+1) { continue; }
+                distance[iter] = dist+1;
+            }
+        }
+        // for (int i = 0; i < height; i++) {
+        //     for (int j = 0; j < width; j++) {
+        //         File.AppendAllText(outputFile, distance[i*width+j] < 10 ? distance[i*width+j] + "   " : (distance[i*width+j] < 100 ? distance[i*width+j] + "  " : distance[i*width+j] + " "));
+        //     }
+        //     File.AppendAllText(outputFile, "\n");
+        // }
+        Console.WriteLine(distance[end]);
     }
 }
 
